@@ -3,6 +3,7 @@ from pathlib import Path
 import json
 import math
 import re
+import zipfile
 
 from motifs import SUN, MOON
 
@@ -160,7 +161,15 @@ def build():
         content = content.replace('aria-labelledby="coinTitle coinDesc"', f'aria-labelledby="preview-{name}-coinTitle preview-{name}-coinDesc"')
         html = html.replace(f'<!-- PREVIEW_{name.upper()} -->', content)
     (ROOT / "index.html").write_text(html)
-    print('Built 3 SVGs, coin-simulator.js, and standalone index.html')
+    # The demo page's "下载完整组件" link points here: the full component bundle.
+    with zipfile.ZipFile(ROOT / "aurum-coin.zip", "w", zipfile.ZIP_DEFLATED) as zf:
+        for arc, src in [("coin-front.svg", "assets/coin-front.svg"),
+                         ("coin-back.svg", "assets/coin-back.svg"),
+                         ("coin-flip.svg", "assets/coin-flip.svg"),
+                         ("coin-simulator.js", "coin-simulator.js"),
+                         ("README.md", "README.md")]:
+            zf.write(ROOT / src, arcname=arc)
+    print('Built 3 SVGs, coin-simulator.js, aurum-coin.zip, and standalone index.html')
 
 
 if __name__ == '__main__':
